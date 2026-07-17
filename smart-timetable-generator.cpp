@@ -1,131 +1,607 @@
-#include <iostream>
-#include <vector>
-#include <string>
+#include<iostream>
+#include<vector>
+#include<string>
+#include<fstream>
+#include<algorithm>
+#include<iomanip>
+#include<cstdlib>
+#include<ctime>
 
 using namespace std;
 
-const int DAYS = 6;
-const int PERIODS = 6;
-const int BREAK_PERIOD = 4;   // Period 4 = Break
-const int TOTAL_SLOTS = 30;   // 5 teaching periods × 6 days
+//======================================================
+//               GLOBAL CONSTANTS
+//======================================================
 
-struct Subject
+const int TOTAL_DAYS = 6;
+const int TOTAL_PERIODS = 6;
+const int MAX_LABS_PER_DAY = 2;
+const int MAX_THEORY_PER_DAY = 2;
+
+//======================================================
+//                TEACHER CLASS
+//======================================================
+
+class Teacher
+{
+private:
+
+    string teacherName;
+    string teacherCode;
+
+public:
+
+    // Default Constructor
+
+    Teacher()
+    {
+        teacherName = "";
+        teacherCode = "";
+    }
+
+    // Parameterized Constructor
+
+    Teacher(string name,string code)
+    {
+        teacherName = name;
+        teacherCode = code;
+    }
+
+    // Setters
+
+    void setTeacherName(string name)
+    {
+        teacherName = name;
+    }
+
+    void setTeacherCode(string code)
+    {
+        teacherCode = code;
+    }
+
+    // Getters
+
+    string getTeacherName() const
+    {
+        return teacherName;
+    }
+
+    string getTeacherCode() const
+    {
+        return teacherCode;
+    }
+
+    // Display
+
+    void displayTeacher() const
+    {
+        cout<<"Teacher Name : "<<teacherName<<endl;
+        cout<<"Teacher Code : "<<teacherCode<<endl;
+    }
+};
+
+//======================================================
+//                SUBJECT CLASS
+//======================================================
+
+class Subject
+{
+private:
+
+    string subjectName;
+
+    Teacher subjectTeacher;
+
+    int lecturesPerWeek;
+
+    bool isLab;
+
+public:
+
+    // Default Constructor
+
+    Subject()
+    {
+        subjectName = "";
+        lecturesPerWeek = 0;
+        isLab = false;
+    }
+
+    // Parameterized Constructor
+
+    Subject(string name,
+            Teacher teacher,
+            int lectures,
+            bool lab)
+    {
+        subjectName = name;
+        subjectTeacher = teacher;
+        lecturesPerWeek = lectures;
+        isLab = lab;
+    }
+
+    // Setters
+
+    void setSubjectName(string name)
+    {
+        subjectName = name;
+    }
+
+    void setTeacher(Teacher teacher)
+    {
+        subjectTeacher = teacher;
+    }
+
+    void setLectureCount(int lecture)
+    {
+        lecturesPerWeek = lecture;
+    }
+
+    void setLabStatus(bool lab)
+    {
+        isLab = lab;
+    }
+
+    // Getters
+
+    string getSubjectName() const
+    {
+        return subjectName;
+    }
+
+    Teacher getTeacher() const
+    {
+        return subjectTeacher;
+    }
+
+    int getLectureCount() const
+    {
+        return lecturesPerWeek;
+    }
+
+    bool getLabStatus() const
+    {
+        return isLab;
+    }
+
+    // Display
+
+    void displaySubject() const
+    {
+        cout<<"\n--------------------------------------"<<endl;
+
+        cout<<"Subject : "<<subjectName<<endl;
+
+        cout<<"Teacher : "
+            <<subjectTeacher.getTeacherName()
+            <<" ("
+            <<subjectTeacher.getTeacherCode()
+            <<")"<<endl;
+
+        cout<<"Lectures / Week : "
+            <<lecturesPerWeek<<endl;
+
+        if(isLab)
+            cout<<"Type : LAB"<<endl;
+        else
+            cout<<"Type : THEORY"<<endl;
+
+        cout<<"--------------------------------------"<<endl;
+    }
+};
+//======================================================
+//                LECTURE CLASS
+//======================================================
+
+class Lecture
+{
+private:
+
+    Subject lectureSubject;
+    bool isAssigned;
+
+public:
+
+    // Default Constructor
+
+    Lecture()
+    {
+        isAssigned = false;
+    }
+
+    // Parameterized Constructor
+
+    Lecture(Subject subject)
+    {
+        lectureSubject = subject;
+        isAssigned = true;
+    }
+
+    // Setters
+
+    void setLectureSubject(Subject subject)
+    {
+        lectureSubject = subject;
+        isAssigned = true;
+    }
+
+    void clearLecture()
+    {
+        isAssigned = false;
+    }
+
+    // Getters
+
+    Subject getLectureSubject() const
+    {
+        return lectureSubject;
+    }
+
+    bool getAssignmentStatus() const
+    {
+        return isAssigned;
+    }
+
+    // Display
+
+    void displayLecture() const
+    {
+        if(isAssigned)
+        {
+            cout << lectureSubject.getSubjectName();
+        }
+        else
+        {
+            cout << "FREE";
+        }
+    }
+};
+
+//======================================================
+//                TIMETABLE CLASS
+//======================================================
+
+class Timetable
+{
+private:
+
+    vector<Subject> subjects;
+
+    Lecture timetable[TOTAL_DAYS][TOTAL_PERIODS];
+
+public:
+
+    // Constructor
+
+    Timetable()
+    {
+        initializeTimetable();
+    }
+
+    //==================================================
+    // Initialize Timetable
+    //==================================================
+
+    void initializeTimetable()
+    {
+        for(int day=0; day<TOTAL_DAYS; day++)
+        {
+            for(int period=0; period<TOTAL_PERIODS; period++)
+            {
+                timetable[day][period].clearLecture();
+            }
+        }
+    }
+
+    //==================================================
+    // Add Subject
+    //==================================================
+
+    void addSubject(const Subject &subject)
+    {
+        subjects.push_back(subject);
+    }
+
+    //==================================================
+    // Display All Subjects
+    //==================================================
+
+    void displaySubjects() const
+    {
+        if(subjects.empty())
+        {
+            cout << "\nNo subjects added yet.\n";
+            return;
+        }
+
+        cout << "\n=========== SUBJECT LIST ===========\n";
+
+        for(size_t i=0; i<subjects.size(); i++)
+        {
+            cout << "\nSubject " << i+1 << endl;
+            subjects[i].displaySubject();
+        }
+    }
+
+    //==================================================
+    // Validate Weekly Lecture Count
+    //==================================================
+
+    bool validateLectureCount(int lectures, bool lab)
+    {
+        if(lab)
+        {
+            if(lectures < 1 || lectures > 3)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if(lectures < 1 || lectures > 6)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    //==================================================
+    // Total Weekly Lectures
+    //==================================================
+
+    int calculateTotalWeeklyLectures() const
+    {
+        int total = 0;
+
+        for(size_t i=0; i<subjects.size(); i++)
+        {
+            total += subjects[i].getLectureCount();
+        }
+
+        return total;
+    }
+
+    //==================================================
+    // Check Capacity
+    //==================================================
+
+    bool timetableHasCapacity() const
+    {
+        int maximumCapacity = TOTAL_DAYS * TOTAL_PERIODS;
+
+        if(calculateTotalWeeklyLectures() > maximumCapacity)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    //==================================================
+    // Get Subject List
+    //==================================================
+
+  const vector<Subject>& getSubjects() const
+{
+    return subjects;
+}
+    //==================================================
+    // Display Empty Timetable
+    //==================================================
+
+    void displayTimetable() const
+    {
+        cout << "\n=========== WEEKLY TIMETABLE ===========\n\n";
+
+        cout << setw(10) << "Day";
+
+        for(int period=1; period<=TOTAL_PERIODS; period++)
+        {
+            cout << setw(15) << ("P" + to_string(period));
+        }
+
+        cout << endl;
+
+        string days[TOTAL_DAYS] =
+        {
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        };
+
+        for(int day=0; day<TOTAL_DAYS; day++)
+        {
+            cout << setw(10) << days[day];
+
+            for(int period=0; period<TOTAL_PERIODS; period++)
+            {
+                cout << setw(15);
+
+                timetable[day][period].displayLecture();
+            }
+
+            cout << endl;
+        }
+    }
+};
+//======================================================
+//            FILE HANDLING FUNCTIONS
+//======================================================
+
+void saveSubjectsToFile(const Timetable &timetable)
+{
+    ofstream file("subjects.txt");
+
+    if(!file)
+    {
+        cout << "\nError creating file!\n";
+        return;
+    }
+
+   const vector<Subject> &subjects = timetable.getSubjects();
+    for(size_t i=0; i<subjects.size(); i++)
+    {
+        file
+            << subjects[i].getSubjectName() << "|"
+            << subjects[i].getTeacher().getTeacherName() << "|"
+            << subjects[i].getTeacher().getTeacherCode() << "|"
+            << subjects[i].getLectureCount() << "|"
+            << subjects[i].getLabStatus()
+            << endl;
+    }
+
+    file.close();
+
+    cout << "\nSubjects saved successfully.\n";
+}
+
+//======================================================
+//            ADD SUBJECT FUNCTION
+//======================================================
+
+void addSubjectMenu(Timetable &timetable)
 {
     string subjectName;
     string teacherName;
-    int lecturesPerWeek;
-    bool isLab;
-};
+    string teacherCode;
+
+    int lectures;
+
+    int typeChoice;
+
+    cout << "\nEnter Subject Name : ";
+    cin.ignore();
+    getline(cin, subjectName);
+
+    cout << "Enter Teacher Name : ";
+    getline(cin, teacherName);
+
+    cout << "Enter Teacher Code : ";
+    getline(cin, teacherCode);
+
+    do
+    {
+        cout << "Enter Lectures Per Week : ";
+        cin >> lectures;
+
+    }while(lectures <= 0 || lectures > 6);
+
+    do
+    {
+        cout << "\n1. Theory";
+        cout << "\n2. Lab";
+        cout << "\nChoice : ";
+        cin >> typeChoice;
+
+    }while(typeChoice != 1 && typeChoice != 2);
+
+    bool isLab = (typeChoice == 2);
+
+    if(!timetable.validateLectureCount(lectures,isLab))
+    {
+        cout << "\nInvalid lecture count.\n";
+        return;
+    }
+
+    Teacher teacher(
+        teacherName,
+        teacherCode
+    );
+
+    Subject subject(
+        subjectName,
+        teacher,
+        lectures,
+        isLab
+    );
+
+    timetable.addSubject(subject);
+
+    cout << "\nSubject Added Successfully!\n";
+}
+
+//======================================================
+//                 MAIN FUNCTION
+//======================================================
 
 int main()
 {
-    vector<Subject> subjects;
+    Timetable timetable;
 
-    int totalSubjects;
+    int choice;
 
-    cout << "=========================================\n";
-    cout << " SMART TIMETABLE GENERATOR (C++)\n";
-    cout << "=========================================\n\n";
-
-    cout << "Enter Number of Subjects : ";
-    cin >> totalSubjects;
-
-    int totalLectures = 0;
-
-    for(int i=0;i<totalSubjects;i++)
+    do
     {
-        Subject temp;
+        cout << "\n========================================";
+        cout << "\n SMART TIMETABLE GENERATOR";
+        cout << "\n========================================";
 
-        cout << "\n----------------------------\n";
-        cout << "Subject " << i+1 << endl;
+        cout << "\n\n1. Add Subject";
+        cout << "\n2. View Subjects";
+        cout << "\n3. View Empty Timetable";
+        cout << "\n4. Save Subjects";
+        cout << "\n5. Check Weekly Capacity";
+        cout << "\n0. Exit";
 
-        cin.ignore();
+        cout << "\n\nEnter Choice : ";
+        cin >> choice;
 
-        cout << "Subject Name : ";
-        getline(cin,temp.subjectName);
-
-        cout << "Teacher Name : ";
-        getline(cin,temp.teacherName);
-
-        while(true)
+        switch(choice)
         {
-            cout << "Lectures Per Week : ";
-            cin >> temp.lecturesPerWeek;
+            case 1:
 
-            if(temp.lecturesPerWeek<=0)
-            {
-                cout<<"Invalid Input!\n";
-            }
-            else
+                addSubjectMenu(timetable);
+
                 break;
+
+            case 2:
+
+                timetable.displaySubjects();
+
+                break;
+
+            case 3:
+
+                timetable.displayTimetable();
+
+                break;
+
+            case 4:
+
+                saveSubjectsToFile(timetable);
+
+                break;
+
+            case 5:
+
+                if(timetable.timetableHasCapacity())
+                {
+                    cout << "\nTimetable capacity is valid.\n";
+                }
+                else
+                {
+                    cout << "\nTotal lectures exceed timetable capacity.\n";
+                }
+
+                break;
+
+            case 0:
+
+                cout << "\nThank You!\n";
+
+                break;
+
+            default:
+
+                cout << "\nInvalid Choice!\n";
         }
 
-        int choice;
-
-        while(true)
-        {
-            cout<<"\nType\n";
-            cout<<"1. Theory\n";
-            cout<<"2. Lab\n";
-
-            cout<<"Enter Choice : ";
-            cin>>choice;
-
-            if(choice==1)
-            {
-                temp.isLab=false;
-                break;
-            }
-            else if(choice==2)
-            {
-                temp.isLab=true;
-                break;
-            }
-            else
-            {
-                cout<<"Invalid Choice\n";
-            }
-        }
-
-        totalLectures += temp.lecturesPerWeek;
-
-        subjects.push_back(temp);
-    }
-
-    cout<<"\n=========================================\n";
-
-    cout<<"Total Teaching Slots Available : "<<TOTAL_SLOTS<<endl;
-    cout<<"Total Lectures Entered         : "<<totalLectures<<endl;
-
-    if(totalLectures > TOTAL_SLOTS)
-    {
-        cout<<"\nERROR!\n";
-        cout<<"You entered more lectures than available slots.\n";
-        cout<<"Maximum Allowed = "<<TOTAL_SLOTS<<endl;
-        cout<<"Please Restart Program.\n";
-
-        return 0;
-    }
-
-    cout<<"\nSubject Summary\n";
-    cout<<"-----------------------------------------\n";
-
-    for(int i=0;i<subjects.size();i++)
-    {
-        cout<<"\nSubject : "<<subjects[i].subjectName<<endl;
-        cout<<"Teacher : "<<subjects[i].teacherName<<endl;
-        cout<<"Lectures : "<<subjects[i].lecturesPerWeek<<endl;
-
-        if(subjects[i].isLab)
-            cout<<"Type : Lab"<<endl;
-        else
-            cout<<"Type : Theory"<<endl;
-    }
-
-    cout<<"\n=========================================\n";
-    cout<<"Validation Successful.\n";
-    cout<<"Ready For Automatic Timetable Generation.\n";
-    cout<<"=========================================\n";
+    }while(choice != 0);
 
     return 0;
 }

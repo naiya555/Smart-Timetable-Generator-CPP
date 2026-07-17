@@ -1,0 +1,3 @@
+english|zeel|101|3|0
+maths|hks sir|102|4|0
+chem|fsd|103|2|1
