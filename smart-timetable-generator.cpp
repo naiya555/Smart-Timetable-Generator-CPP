@@ -224,7 +224,11 @@ public:
         lectureSubject = subject;
         isAssigned = true;
     }
-
+    void assignLecture(Subject subject)
+{
+    lectureSubject = subject;
+    isAssigned = true;
+}
     void clearLecture()
     {
         isAssigned = false;
@@ -386,6 +390,10 @@ public:
   const vector<Subject>& getSubjects() const
 {
     return subjects;
+}
+Lecture& getLecture(int day, int period)
+{
+    return timetable[day][period];
 }
     //==================================================
     // Display Empty Timetable
