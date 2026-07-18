@@ -408,6 +408,72 @@ Lecture& getLecture(int day, int period)
 {
     return timetable[day][period];
 }
+//==================================================
+// Generate Timetable (Greedy Algorithm Foundation)
+//==================================================
+
+void generateTimetable()
+{
+    if(subjects.empty())
+    {
+        cout << "\nNo subjects available.\n";
+        return;
+    }
+
+    initializeTimetable();
+
+    vector<int> remainingLectures(subjects.size());
+
+    vector<vector<int>> dailyLectureCount(
+        subjects.size(),
+        vector<int>(TOTAL_DAYS,0)
+    );
+
+    vector<int> labsPerDay(TOTAL_DAYS,0);
+
+    // Store remaining lectures
+
+    for(size_t i=0;i<subjects.size();i++)
+    {
+        remainingLectures[i]=subjects[i].getLectureCount();
+    }
+
+    // Sort subjects
+    // Labs first, then Theory
+
+vector<Subject> schedulingQueue = subjects;
+
+sort(
+    schedulingQueue.begin(),
+    schedulingQueue.end(),
+    [](const Subject &a, const Subject &b)
+    {
+        if(a.getLabStatus() != b.getLabStatus())
+            return a.getLabStatus() > b.getLabStatus();
+
+        return a.getLectureCount() > b.getLectureCount();
+    }
+);
+
+    cout<<"\nGenerating Timetable...\n";
+
+    // Display scheduling queue
+
+    cout<<"\nScheduling Order\n";
+    cout<<"-----------------------------\n";
+
+    for(size_t i=0;i<subjects.size();i++)
+    {
+        cout
+        <<schedulingQueue[i].getSubjectName()
+        <<" ("
+        <<remainingLectures[i]
+        <<" Lectures)"
+        <<endl;
+    }
+
+    cout<<"\nGreedy scheduling initialized successfully.\n";
+}
     //==================================================
     // Display Empty Timetable
     //==================================================
