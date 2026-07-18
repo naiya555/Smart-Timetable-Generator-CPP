@@ -88,6 +88,8 @@ class Subject
 {
 private:
 
+    int subjectID;
+
     string subjectName;
 
     Teacher subjectTeacher;
@@ -101,24 +103,26 @@ public:
     // Default Constructor
 
     Subject()
-    {
-        subjectName = "";
-        lecturesPerWeek = 0;
-        isLab = false;
-    }
+{
+    subjectID = 0;
+    subjectName = "";
+    lecturesPerWeek = 0;
+    isLab = false;
+}
 
     // Parameterized Constructor
-
-    Subject(string name,
-            Teacher teacher,
-            int lectures,
-            bool lab)
-    {
-        subjectName = name;
-        subjectTeacher = teacher;
-        lecturesPerWeek = lectures;
-        isLab = lab;
-    }
+Subject(int id,
+        string name,
+        Teacher teacher,
+        int lectures,
+        bool lab)
+{
+    subjectID = id;
+    subjectName = name;
+    subjectTeacher = teacher;
+    lecturesPerWeek = lectures;
+    isLab = lab;
+}
 
     // Setters
 
@@ -136,7 +140,15 @@ public:
     {
         lecturesPerWeek = lecture;
     }
+    void setSubjectID(int id)
+{
+    subjectID = id;
+}
 
+int getSubjectID() const
+{
+    return subjectID;
+}
     void setLabStatus(bool lab)
     {
         isLab = lab;
@@ -170,7 +182,8 @@ public:
     {
         cout<<"\n--------------------------------------"<<endl;
 
-        cout<<"Subject : "<<subjectName<<endl;
+        cout<<"Subject ID : "<<subjectID<<endl;
+cout<<"Subject : "<<subjectName<<endl;
 
         cout<<"Teacher : "
             <<subjectTeacher.getTeacherName()
@@ -521,12 +534,15 @@ void addSubjectMenu(Timetable &timetable)
         teacherCode
     );
 
-    Subject subject(
-        subjectName,
-        teacher,
-        lectures,
-        isLab
-    );
+   int subjectID = timetable.getSubjects().size() + 1;
+
+Subject subject(
+    subjectID,
+    subjectName,
+    teacher,
+    lectures,
+    isLab
+);
 
     timetable.addSubject(subject);
 
