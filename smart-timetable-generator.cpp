@@ -432,7 +432,6 @@ void generateTimetable()
     );
 
     vector<int> labsPerDay(TOTAL_DAYS,0);
-
     // Store remaining lectures
 
     for(size_t i=0;i<subjects.size();i++)
@@ -444,7 +443,10 @@ void generateTimetable()
     // Labs first, then Theory
 
 vector<Subject> schedulingQueue = subjects;
-
+vector<vector<int>> dailyTheoryCount(
+    subjects.size() + 1,
+    vector<int>(TOTAL_DAYS,0)
+);
 sort(
     schedulingQueue.begin(),
     schedulingQueue.end(),
@@ -480,32 +482,40 @@ sort(
 for(size_t subjectIndex = 0; subjectIndex < schedulingQueue.size(); subjectIndex++)
 {
     Subject currentSubject = schedulingQueue[subjectIndex];
-
+    int subjectID = currentSubject.getSubjectID();
     int lecturesToAssign = currentSubject.getLectureCount();
 
-    for(int lecture = 0; lecture < lecturesToAssign; lecture++)
+    int startDay = subjectID % TOTAL_DAYS;
+
+for(int lecture = 0; lecture < lecturesToAssign; lecture++)
+{
+    bool placed = false;
+
+    for(int offset = 0; offset < TOTAL_DAYS && !placed; offset++)
     {
-        bool placed = false;
+        int day = (startDay + offset) % TOTAL_DAYS;
 
-        for(int day = 0; day < TOTAL_DAYS && !placed; day++)
+        for(int period = 0; period < TOTAL_PERIODS && !placed; period++)
         {
-            for(int period = 0; period < TOTAL_PERIODS && !placed; period++)
+            if(
+                !timetable[day][period].getAssignmentStatus()
+                &&
+                dailyTheoryCount[subjectID][day] < MAX_THEORY_PER_DAY
+            )
             {
-                if(!timetable[day][period].getAssignmentStatus())
-                {
-                    timetable[day][period].assignLecture(currentSubject);
+                timetable[day][period].assignLecture(currentSubject);
 
-                    placed = true;
-                }
+                dailyTheoryCount[subjectID][day]++;
+
+                placed = true;
             }
         }
     }
 }
-
 cout << "\nTimetable Generated Successfully!\n";
 
 }
-    //==================================================
+}    //==================================================
     // Display Empty Timetable
     //==================================================
 
@@ -688,9 +698,11 @@ int main()
 
             case 3:
 
-                timetable.displayTimetable();
+            timetable.generateTimetable();
 
-                break;
+            timetable.displayTimetable();
+
+            break;
 
             case 4:
 
@@ -726,3 +738,5 @@ int main()
 
     return 0;
 }
+
+
