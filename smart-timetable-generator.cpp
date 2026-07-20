@@ -409,9 +409,11 @@ Lecture& getLecture(int day, int period)
     return timetable[day][period];
 }
 //==================================================
+// Check Theory Placement
+//==================================================
+//==================================================
 // Generate Timetable (Greedy Algorithm Foundation)
 //==================================================
-
 void generateTimetable()
 {
     if(subjects.empty())
@@ -471,8 +473,37 @@ sort(
         <<" Lectures)"
         <<endl;
     }
+//==================================================
+// Start Greedy Allocation
+//==================================================
 
-    cout<<"\nGreedy scheduling initialized successfully.\n";
+for(size_t subjectIndex = 0; subjectIndex < schedulingQueue.size(); subjectIndex++)
+{
+    Subject currentSubject = schedulingQueue[subjectIndex];
+
+    int lecturesToAssign = currentSubject.getLectureCount();
+
+    for(int lecture = 0; lecture < lecturesToAssign; lecture++)
+    {
+        bool placed = false;
+
+        for(int day = 0; day < TOTAL_DAYS && !placed; day++)
+        {
+            for(int period = 0; period < TOTAL_PERIODS && !placed; period++)
+            {
+                if(!timetable[day][period].getAssignmentStatus())
+                {
+                    timetable[day][period].assignLecture(currentSubject);
+
+                    placed = true;
+                }
+            }
+        }
+    }
+}
+
+cout << "\nTimetable Generated Successfully!\n";
+
 }
     //==================================================
     // Display Empty Timetable
