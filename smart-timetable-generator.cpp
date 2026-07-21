@@ -409,8 +409,9 @@ Lecture& getLecture(int day, int period)
     return timetable[day][period];
 }
 //==================================================
-// Check Theory Placement
+// Scheduling Functions
 //==================================================
+
 //==================================================
 // Generate Timetable (Greedy Algorithm Foundation)
 //==================================================
@@ -438,10 +439,8 @@ void generateTimetable()
     {
         remainingLectures[i]=subjects[i].getLectureCount();
     }
-
     // Sort subjects
     // Labs first, then Theory
-
 vector<Subject> schedulingQueue = subjects;
 vector<vector<int>> dailyTheoryCount(
     subjects.size() + 1,
@@ -458,9 +457,75 @@ sort(
         return a.getLectureCount() > b.getLectureCount();
     }
 );
+vector<Subject> labSubjects;
+vector<Subject> theorySubjects;
 
+for(size_t i = 0; i < schedulingQueue.size(); i++)
+{
+    if(schedulingQueue[i].getLabStatus())
+        labSubjects.push_back(schedulingQueue[i]);
+    else
+        theorySubjects.push_back(schedulingQueue[i]);
+}
     cout<<"\nGenerating Timetable...\n";
+//==================================================
+// Schedule Lab Subjects
+//==================================================
 
+vector<pair<int,int>> labSlots =
+{
+    {0,1},
+    {1,2},
+    {3,4},
+    {4,5}
+};
+
+for(size_t i = 0; i < labSubjects.size(); i++)
+{
+    Subject currentLab = labSubjects[i];
+
+    cout << "Scheduling Lab : "
+         << currentLab.getSubjectName()
+         << endl;
+bool placed = false;
+
+for(int day = 0; day < TOTAL_DAYS && !placed; day++)
+{
+    if(labsPerDay[day] >= MAX_LABS_PER_DAY)
+        continue;
+
+    for(size_t slot = 0; slot < labSlots.size() && !placed; slot++)
+    {
+        int firstPeriod = labSlots[slot].first;
+        int secondPeriod = labSlots[slot].second;
+
+        if(
+            !timetable[day][firstPeriod].getAssignmentStatus()
+            &&
+            !timetable[day][secondPeriod].getAssignmentStatus()
+        )
+        {
+timetable[day][firstPeriod].assignLecture(currentLab);
+
+timetable[day][secondPeriod].assignLecture(currentLab);
+
+labsPerDay[day]++;
+
+placed = true;
+
+cout << "Lab Scheduled : "
+     << currentLab.getSubjectName()
+     << " -> Day "
+     << day + 1
+     << " Periods "
+     << firstPeriod + 1
+     << "-"
+     << secondPeriod + 1
+     << endl;
+        }
+    }
+}
+}
     // Display scheduling queue
 
     cout<<"\nScheduling Order\n";
@@ -479,9 +544,9 @@ sort(
 // Start Greedy Allocation
 //==================================================
 
-for(size_t subjectIndex = 0; subjectIndex < schedulingQueue.size(); subjectIndex++)
-{
-    Subject currentSubject = schedulingQueue[subjectIndex];
+for(size_t subjectIndex = 0; subjectIndex < theorySubjects.size(); subjectIndex++)
+    {
+    Subject currentSubject = theorySubjects[subjectIndex];
     int subjectID = currentSubject.getSubjectID();
     int lecturesToAssign = currentSubject.getLectureCount();
 
@@ -518,7 +583,15 @@ cout << "\nTimetable Generated Successfully!\n";
 }    //==================================================
     // Display Empty Timetable
     //==================================================
+    void scheduleLabs()
+{
 
+}
+
+void scheduleTheory()
+{
+
+}
     void displayTimetable() const
     {
         cout << "\n=========== WEEKLY TIMETABLE ===========\n\n";
