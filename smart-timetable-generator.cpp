@@ -12,7 +12,7 @@ using namespace std;
 //======================================================
 //               GLOBAL CONSTANTS
 //======================================================
-
+const bool DEBUG_MODE = false;
 const int TOTAL_DAYS = 6;
 const int TOTAL_PERIODS = 6;
 const int MAX_LABS_PER_DAY = 2;
