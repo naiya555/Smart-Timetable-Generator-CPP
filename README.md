@@ -30,7 +30,7 @@ A console-based **Smart Timetable Generator** developed using **C++**, **Object-
 - OOP
 - STL
 - File Handling
-
+  
 ## 👩‍💻 Author
 
 **Naiya Sharma**
