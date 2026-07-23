@@ -14,6 +14,7 @@ A console-based **Smart Timetable Generator** developed using **C++**, **Object-
 - Lab/Theory Support
 
 ## 🚀 Upcoming Features
+
 - Automatic Timetable Generation
 - Teacher Conflict Detection
 - Smart Lab Scheduling
